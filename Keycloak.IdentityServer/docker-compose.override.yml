@@ -4,13 +4,12 @@ services:
       depends_on:
         - exp.db.keycloak
       environment:
+        - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN:-dadmin}
+        - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-dadmin}
         - KC_DB=postgres
         - KC_DB_URL=jdbc:postgresql://exp.db.keycloak:5432/${POSTGRES_DB:-dKeycloakDb}
         - KC_DB_USERNAME=${KC_DB_USERNAME:-duser}
         - KC_DB_PASSWORD=${KC_DB_PASSWORD:-dpassword}
-        # Admin user configuration (for development mode)
-        - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN:-dadmin}
-        - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-dadmin}
       command: [
         "start-dev", # start in development mode
         "--import-realm", # import realm from file
