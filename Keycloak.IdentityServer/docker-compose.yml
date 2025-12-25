@@ -1,4 +1,11 @@
 services:
+  db.keycloak:
+      image: postgres:alpine
+
+  exp.keycloak.server:
+      image: keycloak/keycloak:26.3.4
+
+
   keycloak.identityserver:
     image: ${DOCKER_REGISTRY-}keycloakidentityserver
     build:

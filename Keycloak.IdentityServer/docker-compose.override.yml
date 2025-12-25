@@ -1,5 +1,43 @@
 services:
+  exp.keycloak.server:
+      container_name: exp.keycloak.server
+      command: []
+      environment:
+        - KC_DB=postgres
+        - KC_DB_URL=jdbc:postgresql://db.keycloak:5432/${POSTGRES_DB:-dKeycloakDb}
+        - KC_DB_USERNAME=${KC_DB_USERNAME:-duser}
+        - KC_DB_PASSWORD=${KC_DB_PASSWORD:-dpassword}
+      restart: never
+      networks:
+        - exp-keycloak-network
+
+  exp.db.keycloak:
+      container_name: exp.db.keycloak
+      environment:
+        - POSTGRES_USER=${POSTGRES_USER:-duser}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dpassword}
+        - POSTGRES_DB=${POSTGRES_DB:-dKeycloakDb}
+      # env_file:
+      #   - path: ./.env.example
+      #     required: true # default
+      #   - path: ./.env.override.example
+      #     required: false
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-duser} -d ${POSTGRES_DB:-dKeycloakDb}"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+        start_period: 30s
+      restart: never
+      ports: 
+          - "5432:5432"
+      volumes:
+          - ./provisions/db-data/keycloak:/var/lib/postgresql/data/
+      networks:
+          - exp-keycloak-network
+
   keycloak.identityserver:
+    container_name: keycloak.identityserver
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -10,3 +48,13 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    networks:
+      - exp-keycloak-network
+
+
+networks:
+  exp-keycloak-network:
+    driver: bridge
+# volumes:
+#   exp_postgres_keycloak:
+#     name: exp_postgres_keycloak

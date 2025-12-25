@@ -1,0 +1,41 @@
+# Optional: Automated Backup Service
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.override.yml -f docker-compose.backup.yml up -d
+# This service runs automated pg_dump backups on a schedule
+
+services:
+  keycloak-backup:
+    image: postgres:alpine
+    container_name: keycloak-backup
+    environment:
+      - PGPASSWORD=bale
+      - BACKUP_INTERVAL=${BACKUP_INTERVAL:-86400}  # Default: 24 hours in seconds
+      - RETENTION_DAYS=${RETENTION_DAYS:-30}
+    volumes:
+      - ./provisions/backups:/backups
+    networks:
+      - exp-keycloak-network
+    command: >
+      sh -c "
+        echo 'Starting automated backup service...';
+        echo 'Backup interval: $${BACKUP_INTERVAL}s';
+        echo 'Retention days: $${RETENTION_DAYS}';
+        while true; do
+          TIMESTAMP=$$(date +%Y%m%d_%H%M%S);
+          BACKUP_FILE=/backups/keycloak_backup_$${TIMESTAMP}.sql.gz;
+          echo \"[$$(date +'%Y-%m-%d %H:%M:%S')] Starting backup...\";
+          if pg_dump -h exp.db.keycloak -U bale -d KeycloakDb --clean --if-exists --create | gzip > $${BACKUP_FILE}; then
+            SIZE=$$(du -h $${BACKUP_FILE} | cut -f1);
+            echo \"[$$(date +'%Y-%m-%d %H:%M:%S')] Backup completed: $${BACKUP_FILE} ($${SIZE})\";
+            # Cleanup old backups
+            find /backups -name 'keycloak_backup_*.sql.gz' -mtime +$${RETENTION_DAYS} -delete;
+          else
+            echo \"[$$(date +'%Y-%m-%d %H:%M:%S')] Backup failed!\";
+          fi;
+          echo \"[$$(date +'%Y-%m-%d %H:%M:%S')] Next backup in $${BACKUP_INTERVAL} seconds\";
+          sleep $${BACKUP_INTERVAL};
+        done
+      "
+    restart: unless-stopped
+    depends_on:
+      - exp.db.keycloak
+
