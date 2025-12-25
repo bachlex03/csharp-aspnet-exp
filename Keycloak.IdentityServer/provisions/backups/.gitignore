@@ -1,0 +1,12 @@
+# # Ignore all backup files
+# *.sql
+# *.sql.gz
+# *.tar.gz
+# *.bak
+# *.backup
+
+# # Keep scripts and documentation
+# !*.sh
+# !*.md
+# !.gitignore
+
