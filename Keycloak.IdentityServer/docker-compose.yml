@@ -1,12 +1,12 @@
 services:
-  db.keycloak:
+  exp.db.keycloak:
       image: postgres:alpine
 
   exp.keycloak.server:
-      image: keycloak/keycloak:26.3.4
+      image: quay.io/keycloak/keycloak:26.3.4
 
 
-  keycloak.identityserver:
+  exp.keycloak.identityserver:
     image: ${DOCKER_REGISTRY-}keycloakidentityserver
     build:
       context: .

@@ -7,7 +7,7 @@
     <ProjectGuid>8bb9521a-9d4a-42d8-910f-0fded06c0a82</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
-    <DockerServiceName>keycloak.identityserver</DockerServiceName>
+    <DockerServiceName>exp.keycloak.identityserver</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

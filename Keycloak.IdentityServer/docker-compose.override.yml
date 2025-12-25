@@ -1,13 +1,29 @@
 services:
   exp.keycloak.server:
       container_name: exp.keycloak.server
-      command: []
+      depends_on:
+        - exp.db.keycloak
       environment:
         - KC_DB=postgres
-        - KC_DB_URL=jdbc:postgresql://db.keycloak:5432/${POSTGRES_DB:-dKeycloakDb}
+        - KC_DB_URL=jdbc:postgresql://exp.db.keycloak:5432/${POSTGRES_DB:-dKeycloakDb}
         - KC_DB_USERNAME=${KC_DB_USERNAME:-duser}
         - KC_DB_PASSWORD=${KC_DB_PASSWORD:-dpassword}
-      restart: never
+        # Admin user configuration (for development mode)
+        - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN:-dadmin}
+        - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-dadmin}
+      command: [
+        "start-dev", # start in development mode
+        "--import-realm", # import realm from file
+      ]
+      # command:
+      #   - |
+      #     ./opt/keycloak/bin/kc.sh import --file=/opt/keycloak/data/import/master-realm.json --override=true --optimized
+      #     ./opt/keycloak/bin/kc.sh start-dev --import-realm --spi-theme-static-max-age=-1 --spi-theme-cache-themes=false --spi-theme-cache-templates=false
+      restart: no
+      volumes:
+        - ./provisions/volumes/keycloak:/opt/keycloak/data/import
+      ports:
+        - "8080:8080"
       networks:
         - exp-keycloak-network
 
@@ -28,16 +44,16 @@ services:
         timeout: 5s
         retries: 5
         start_period: 30s
-      restart: never
+      restart: no
       ports: 
           - "5432:5432"
       volumes:
-          - ./provisions/db-data/keycloak:/var/lib/postgresql/data/
+          - exp_postgres_keycloak:/var/lib/postgresql/data/
       networks:
           - exp-keycloak-network
 
-  keycloak.identityserver:
-    container_name: keycloak.identityserver
+  exp.keycloak.identityserver:
+    container_name: exp.keycloak.identityserver
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
@@ -55,6 +71,7 @@ services:
 networks:
   exp-keycloak-network:
     driver: bridge
-# volumes:
-#   exp_postgres_keycloak:
-#     name: exp_postgres_keycloak
+
+volumes:
+  exp_postgres_keycloak:
+    name: exp_postgres_keycloak

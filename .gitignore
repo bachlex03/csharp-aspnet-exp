@@ -339,8 +339,7 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# Not ignore backups folder
-!Keycloak.IdentityServer/provisions/backups/
+
 
 # Environment variables
 .env

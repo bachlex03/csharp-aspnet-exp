@@ -1,0 +1,6 @@
+# Not ignore backups folder
+!provisions/backups/
+
+# Ignore everything in export folder (realm exports)
+provisions/volumes/keycloak/export/**
+provisions/volumes/keycloak/export/
