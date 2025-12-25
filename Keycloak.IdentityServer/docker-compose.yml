@@ -1,0 +1,6 @@
+services:
+  keycloak.identityserver:
+    image: ${DOCKER_REGISTRY-}keycloakidentityserver
+    build:
+      context: .
+      dockerfile: Keycloak.IdentityServer/Dockerfile
