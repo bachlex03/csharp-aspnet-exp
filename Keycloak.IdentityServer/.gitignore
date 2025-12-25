@@ -3,4 +3,9 @@
 
 # Ignore everything in export folder (realm exports)
 provisions/volumes/keycloak/export/**
-provisions/volumes/keycloak/export/
+# Unignore example folder (for reference/template)
+!provisions/volumes/keycloak/export/25_12_2025_example/
+!provisions/volumes/keycloak/export/25_12_2025_example/**
+
+# Ignore everything in db-data folder (database data)
+provisions/db-data/keycloak/**
